@@ -1,9 +1,9 @@
 package main
 
 import (
-	"fmt"
-
 	"encoding/json"
+	"fmt"
+	"strconv"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
@@ -94,9 +94,21 @@ func HandleRequest(request events.APIGatewayProxyRequest) (events.APIGatewayProx
 	responseBodyString, err := json.Marshal(responseBody)
 	if err != nil {
 		fmt.Println("Error Marshalling Response Body.")
+		ApiResponse = events.APIGatewayProxyResponse{Body: err.Error(), Headers: headers, IsBase64Encoded: false, MultiValueHeaders: returnHeaderExample, StatusCode: 500}
+		return ApiResponse, nil
 	}
-
-	ApiResponse = events.APIGatewayProxyResponse{Body: string(responseBodyString), Headers: headers, IsBase64Encoded: false, MultiValueHeaders: returnHeaderExample, StatusCode: 200}
+	statusCode := 200
+	responseCode := queryStringParameters["responseCode"]
+	if responseCode != "" {
+		rc, err := strconv.Atoi(responseCode)
+		if err != nil {
+			statusCode = 500
+			fmt.Println("Error Converting responseCode to int.  Setting statusCode to 500.")
+		} else {
+			statusCode = rc
+		}
+	}
+	ApiResponse = events.APIGatewayProxyResponse{Body: string(responseBodyString), Headers: headers, IsBase64Encoded: false, MultiValueHeaders: returnHeaderExample, StatusCode: statusCode}
 	return ApiResponse, nil
 }
 
