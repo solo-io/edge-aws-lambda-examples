@@ -9,39 +9,6 @@ import (
 	"github.com/aws/aws-lambda-go/lambda"
 )
 
-type bodyResponse struct {
-	Resource              string            `json:"resource"` // The resource path defined in API Gateway
-	Path                  string            `json:"path"`     // The url path for the caller
-	HTTPMethod            string            `json:"httpMethod"`
-	Headers               map[string]string `json:"headers"`
-	QueryStringParameters map[string]string `json:"queryStringParameters"`
-	PathParameters        map[string]string `json:"pathParameters"`
-	StageVariables        map[string]string `json:"stageVariables"`
-	Body                  string            `json:"body"`
-	IsBase64Encoded       bool              `json:"isBase64Encoded,omitempty"`
-}
-
-/*
-type APIGatewayProxyRequest struct {
-    Resource              string                        `json:"resource"` // The resource path defined in API Gateway
-    Path                  string                        `json:"path"`     // The url path for the caller
-    HTTPMethod            string                        `json:"httpMethod"`
-    Headers               map[string]string             `json:"headers"`
-    QueryStringParameters map[string]string             `json:"queryStringParameters"`
-    PathParameters        map[string]string             `json:"pathParameters"`
-    StageVariables        map[string]string             `json:"stageVariables"`
-    RequestContext        APIGatewayProxyRequestContext `json:"requestContext"`
-    Body                  string                        `json:"body"`
-    IsBase64Encoded       bool                          `json:"isBase64Encoded,omitempty"`
-}
-type APIGatewayProxyResponse struct {
-    StatusCode      int               `json:"statusCode"`
-    Headers         map[string]string `json:"headers"`
-    Body            string            `json:"body"`
-    IsBase64Encoded bool              `json:"isBase64Encoded,omitempty"`
-}
-*/
-
 func HandleRequest(request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
 	ApiResponse := events.APIGatewayProxyResponse{}
 	returnHeaderExample := map[string][]string{"x-multivalue-header": []string{"multivalue-header-1", "multivalue-header-2", "multivalue-header-3"}}
@@ -79,21 +46,9 @@ func HandleRequest(request events.APIGatewayProxyRequest) (events.APIGatewayProx
 		fmt.Printf("    %s: %s\n", stageKey, stageValue)
 	}
 
-	responseBody := &bodyResponse{
-		Resource:              resource,
-		Path:                  path,
-		HTTPMethod:            httpMethod,
-		Headers:               headers,
-		QueryStringParameters: queryStringParameters,
-		PathParameters:        pathParameters,
-		StageVariables:        stageVariables,
-		Body:                  body,
-		IsBase64Encoded:       isBase64Encoded,
-	}
-
-	responseBodyString, err := json.Marshal(responseBody)
+	responseBodyString, err := json.Marshal(request)
 	if err != nil {
-		fmt.Println("Error Marshalling Response Body.")
+		fmt.Println("Error Marshalling Request Body.")
 		ApiResponse = events.APIGatewayProxyResponse{Body: err.Error(), Headers: headers, IsBase64Encoded: false, MultiValueHeaders: returnHeaderExample, StatusCode: 500}
 		return ApiResponse, nil
 	}
