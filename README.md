@@ -27,9 +27,11 @@
     `aws iam attach-role-policy --role-name lambda-function-executor --policy-arn arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole`
 5. Deploy the lambda function
     ```
-    aws lambda create-function --function-name $aws-api-lambda-function --runtime go1.x \
+    aws lambda create-function --function-name aws-api-lambda-function --runtime go1.x \
     --role $rolearn \
     --handler main --zip-file fileb://./mirror.zip
     ```
 6. Follow instructions on https://docs.aws.amazon.com/lambda/latest/dg/services-apigateway-tutorial.html to create a REST API using API Gateway
 
+7. Follow the instructions to create an AWS Secret and AWS Upstream.
+8. Apply the `lambda-vs.yaml` to expose the routes for the `aws-api-lambda-function`
