@@ -1,0 +1,31 @@
+apiVersion: gateway.solo.io/v1
+kind: VirtualService
+metadata:
+  name: default
+  namespace: gloo-system
+spec:
+  virtualHost:
+    domains:
+    - '*'
+    routes:
+    - matchers:
+      - exact: /mirror-transform
+      routeAction:
+        single:
+          destinationSpec:
+            aws:
+              logicalName: aws-api-gateway-function
+              responseTransformation: true
+          upstream:
+            name: aws-upstream
+            namespace: gloo-system
+    - matchers:
+      - exact: /mirror-no-transform
+      routeAction:
+        single:
+          destinationSpec:
+            aws:
+              logicalName: aws-api-gateway-function
+          upstream:
+            name: aws-upstream
+            namespace: gloo-system            
